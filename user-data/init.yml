@@ -1,0 +1,77 @@
+#cloud-config
+
+repo_update: true
+repo_upgrade: all
+
+packages:
+  - python
+  - python-pip
+  - jq
+  - unzip
+  - apt-transport-https
+  - curl
+  - gnupg2
+  - software-properties-common
+  - ca-certificates
+  - docker.io
+  - openjdk-8-jre-headless
+  - unattended-upgrades
+
+write_files:
+- path: /etc/environment
+  content: |
+    PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+    export JENKINS_HOME=/var/lib/jenkins
+    export CASC_JENKINS_CONFIG=/var/lib/jenkins/casc_configs
+    export JENKINS_UC=https://updates.jenkins.io
+    export ENVIRONMENT=${environment}
+- path: /usr/local/bin/jenkins.yml
+  encoding: gz+b64
+  content: ${config_as_code_jenkins}
+  owner: root:root
+  permissions: '0444'
+- path: /usr/local/bin/bootstrap.sh
+  encoding: gz+b64
+  content: ${bootstrap}
+  owner: root:root
+  permissions: '0750'
+- path: /usr/local/bin/entrypoint.sh
+  content: ${entrypoint}
+  encoding: gz+b64
+  owner: root:root
+  permissions: '0750'
+- path: /usr/local/bin/envars.sh
+  content: |
+    ${envars}
+  encoding: gz+b64
+  owner: root:root
+  permissions: '0750'
+- path: /etc/systemd/system/awslogs.service
+  content: ${awslogs_service}
+  encoding: gz+b64
+  owner: root:root
+  permissions: '0755'
+- path: /usr/local/bin/cwlog.cfg
+  content: ${awslogs_cwlog}
+  encoding: gz+b64
+  owner: root:root
+  permissions: '0750'
+- path: /usr/local/bin/cloudwatch.sh
+  content: ${awslogs_init}
+  encoding: gz+b64
+  owner: root:root
+  permissions: '0750'
+- path: /usr/local/bin/plugins.txt
+  content: ${plugins_versions_jenkins}
+  encoding: gz+b64
+  owner: root:root
+  permissions: '0750'
+
+
+runcmd:
+ - "pip install awscli"
+ - "/usr/local/bin/bootstrap.sh"
+ - echo "Updated ...."
+
+output:
+  all: '| tee -a /var/log/cloud-init-output.log'

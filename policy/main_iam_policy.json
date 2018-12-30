@@ -1,0 +1,78 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"s3:GetBucketVersioning",
+				"s3:GetBucketCors",
+				"s3:GetBucketLocation",
+				"s3:ListAllMyBuckets",
+				"s3:GetObject",
+				"s3:GetObjectVersion",
+				"s3:GetObjectTagging",
+				"secretsmanager:ListSecrets",
+				"ec2:CreateLaunchTemplate",
+				"ec2:CreateLaunchTemplateVersion",
+				"ec2:GetLaunchTemplateData",
+				"ec2:DescribeLaunchTemplateVersions",
+				"ec2:DescribeLaunchTemplates",
+				"ecs:*"
+			],
+			"Resource": ["*"]
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"s3:PutObject",
+				"s3:PutObjectAcl",
+				"s3:PutObjectVersionAcl",
+				"s3:DeleteObject",
+				"s3:DeleteObjectTagging",
+				"s3:DeleteObjectVersion",
+				"s3:GetObject",
+				"s3:GetObjectAcl",
+				"s3:ListBucket",
+				"s3:DeleteObject",
+				"s3:GetBucketPolicy"
+			],
+			"Resource": [
+				"*"
+			]
+		},
+		{
+			"Effect": "Allow",
+			"Action": ["ssm:GetParameter", "ssm:GetParametersByPath"],
+			"Resource": [
+				"arn:aws:ssm:${region}:${account_id}:parameter/ci/main/${environment}-*",
+				"arn:aws:ssm:${region}:${account_id}:parameter/${environment}/*"
+			]
+		},
+		{
+			"Sid": "AllowAccessToDecryptSsmParameters",
+			"Effect": "Allow",
+			"Action": [
+				"kms:GetKeyRotationStatus",
+				"kms:Describe*",
+				"kms:Decrypt",
+				"kms:Encrypt"
+			],
+			"Resource": ["arn:aws:kms:${region}:${account_id}:key/*"]
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"kms:GenerateDataKey",
+				"kms:DescribeKey",
+				"kms:ListKeys",
+				"kms:ListAliases"
+			],
+			"Resource": ["*"]
+		},
+		{
+			"Effect": "Allow",
+			"Action": ["lambda:UpdateFunctionCode", "lambda:Get*", "lambda:List*"],
+			"Resource": ["*"]
+		}
+	]
+}
